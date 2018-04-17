@@ -23,6 +23,7 @@ int main() {
 	int tailSize = 0;
 	std::vector<int> tailX;
 	std::vector<int> tailY;
+	
 
 
 
@@ -129,7 +130,7 @@ void logic(direction& dir, int& x, int& y, bool& gameOver, int w, int h, int& fr
 
 	int prevHeadXLast = x;
 	int prevHeadYLast = y;
-	direction prevDir = dir ;
+
 
 	//  update location of each tail segment
 	for (int i = 1; i < tailSize; i++) {
@@ -147,26 +148,19 @@ void logic(direction& dir, int& x, int& y, bool& gameOver, int w, int h, int& fr
 	switch (dir)
 	{
 	case UP:
-		if (prevDir == DOWN)
-			break;
 		y--;
 		break;
 	case DOWN:
-		if (prevDir == UP)
-		break;
 		y++;
 		break;
 	case LEFT:
-		if (prevDir == RIGHT)
-			break;
 		x--;
 		break;
 	case RIGHT:
-		if (prevDir == LEFT)
-			break;
 		x++;
 		break;
 	}
+
 
 	// if the snake hits the border, game is over
 	if (x < 0 || x > w - 1   || y < 0 || y > h - 1 ) {
