@@ -1,0 +1,217 @@
+#include <iostream>
+#include <ctime>
+#include <conio.h>
+#include<vector>
+
+const int width = 50, height = 20;
+enum direction { UP, DOWN, LEFT, RIGHT, nothing};
+
+void drawings(int&, int&, int&, int&, int, int, std::vector<int>&, std::vector<int>&);
+void initializePosition(int&, int&, int&, int&, int, int);
+void input(direction&);
+void logic(direction&, int&, int&, bool&, int, int, int&, int&, int&, int&, std::vector<int>&, std::vector<int>&);
+
+
+int main() {
+
+
+	int playHeight = height - 2, playWidth = width - 2;
+	int x, y, fruitX, fruitY; // x and y : snake head cordinates
+	int score = 0;
+	direction dir;
+	bool gameOver = false;
+	int tailSize = 0;
+	std::vector<int> tailX;
+	std::vector<int> tailY;
+
+
+
+
+	initializePosition(x, y, fruitX, fruitY, playWidth, playHeight);
+	while (!gameOver) {
+		drawings(x, y, fruitX, fruitY, score, tailSize, tailX, tailY);
+		input(dir);
+		logic(dir, x, y, gameOver, playWidth, playHeight, fruitX, fruitY, score, tailSize, tailX, tailY);
+	}
+	std::cout << "Game Over" << '\n' << "Score : " << score << std::endl;
+	system("pause");
+	return 0;
+}
+
+void initializePosition(int& x, int& y, int& fruitX, int& fruitY, int w, int h) {
+
+	srand(time(NULL));
+
+	x = w / 2; // initialize snake x cordinate
+	y = h / 2; // initialize snake y cordinate
+	fruitX = (rand() % (w - 1)) + 1;
+	fruitY = (rand() % (h - 1)) + 1;
+	if (x == fruitX && y == fruitY)
+	{
+		fruitX = (rand() % (w - 1)) + 1;
+		fruitY = (rand() % (h - 1)) + 1;
+	}
+}
+
+void drawings(int& x, int& y, int& fruitX, int& fruitY, int score, int tailSize, std::vector<int>& tailX, std::vector<int>& tailY) {
+
+	int playHeight = height - 2;
+	int playWidth = width - 2;
+
+
+	std::cout << '\n' << "Score : " << score << "\n" << std::endl;
+
+
+	// first horizontal line of border
+	for (int i = 0; i < width; i++) {
+		std::cout << "*";
+	}
+	std::cout << std::endl;
+
+	// display side borders, middle spaces, head, fruit
+	for (int i = 0; i < playHeight; i++) {
+		std::cout << "*";
+		for (int j = 0; j < playWidth; j++) {
+			if (x == j && y == i)
+				std::cout << "O";
+
+			else 
+			{
+				bool printSpace = true;
+				for (int k = 0; k < tailSize ; k++)
+					if (tailSize > 0 && tailX[k] == j && tailY[k] == i) {
+						std::cout << "o";
+						printSpace = false;
+					}
+				
+				if (printSpace == true && fruitX == j && fruitY == i)
+					std::cout << "X";
+				else if (printSpace == true)
+					std::cout << " ";
+			}
+		
+				
+		}
+		std::cout << "*" << std::endl;
+
+	}
+
+	//last horizontal line of border
+	for (int i = 0; i < width; i++) {
+
+		std::cout << "*";
+	}
+
+	system("cls");
+}
+
+void input(direction& dir) {
+	if (_kbhit())
+		switch (_getch())
+		{
+		case'w':
+			dir = UP;
+			break;
+		case's':
+			dir = DOWN;
+			break;
+		case'a':
+			dir = LEFT;
+			break;
+		case'd':
+			dir = RIGHT;
+			break;
+
+		}
+}
+
+void logic(direction& dir, int& x, int& y, bool& gameOver, int w, int h, int& fruitX, int& fruitY, int& score, int& tailSize, std::vector<int>& tailX, std::vector<int>& tailY) {
+
+	int prevHeadXLast = x;
+	int prevHeadYLast = y;
+	direction prevDir = dir ;
+
+	//  update location of each tail segment
+	for (int i = 1; i < tailSize; i++) {
+		if (tailSize - i > 0) {
+			tailX[tailSize - i] = tailX[tailSize - i - 1];
+			tailY[tailSize - i] = tailY[tailSize - i - 1];
+		}
+	}
+
+	if (tailSize >= 1) {
+		tailX[0] = x;
+		tailY[0] = y;
+	}
+
+	switch (dir)
+	{
+	case UP:
+		if (prevDir == DOWN)
+			break;
+		y--;
+		break;
+	case DOWN:
+		if (prevDir == UP)
+		break;
+		y++;
+		break;
+	case LEFT:
+		if (prevDir == RIGHT)
+			break;
+		x--;
+		break;
+	case RIGHT:
+		if (prevDir == LEFT)
+			break;
+		x++;
+		break;
+	}
+
+	// if the snake hits the border, game is over
+	if (x < 0 || x > w - 1   || y < 0 || y > h - 1 ) {
+		gameOver = true;
+	}
+	// if the snake hits its tail, game is over
+	for (int k = 0; k < tailSize; k++) {
+		if (x == tailX[k] && y == tailY[k])
+			gameOver = true;
+	}
+
+	// When snake eats the fruit
+	if (x == fruitX && y == fruitY) {
+		score += 1;	
+		tailSize++;
+		
+		if (tailSize > 1) {
+			tailX.push_back(tailX.back());
+			tailY.push_back(tailX.back());
+		}
+		
+		else {
+			tailX.push_back(prevHeadXLast);
+			tailY.push_back(prevHeadYLast);
+		}
+
+		// generate a new fruit
+		fruitX = (rand() % (w - 1)) + 1;
+		fruitY = (rand() % (h - 1)) + 1;
+
+		// prevent the fruit from generating inside the head
+		if (x == fruitX && y == fruitY) {
+			fruitX = (rand() % (w - 1)) + 1;
+			fruitY = (rand() % (h - 1)) + 1;
+		}
+		// prevent the fruit from generating inside the tail
+		else {
+			for (int k = 0; k < tailSize; k++)
+			{
+				if (fruitX == tailX[k] && fruitY == tailY[k]) {
+					fruitX = (rand() % (w - 1)) + 1;
+					fruitY = (rand() % (h - 1)) + 1;
+				}
+			}
+		}
+	}
+
+}
