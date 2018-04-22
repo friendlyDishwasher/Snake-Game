@@ -20,22 +20,59 @@ int main() {
 	int score = 0;
 	direction dir;
 	bool gameOver = false;
+	bool endGame = false;
+	bool validInput = false;
+	char yesOrNo;
 	int tailSize = 0;
 	std::vector<int> tailX;
 	std::vector<int> tailY;
 	
 
 
+	while (!endGame) {
 
+		initializePosition(x, y, fruitX, fruitY, playWidth, playHeight);
+		while (!gameOver) {
+			drawings(x, y, fruitX, fruitY, score, tailSize, tailX, tailY);
+			input(dir);
+			logic(dir, x, y, gameOver, playWidth, playHeight, fruitX, fruitY, score, tailSize, tailX, tailY);
+		}
 
-	initializePosition(x, y, fruitX, fruitY, playWidth, playHeight);
-	while (!gameOver) {
-		drawings(x, y, fruitX, fruitY, score, tailSize, tailX, tailY);
-		input(dir);
-		logic(dir, x, y, gameOver, playWidth, playHeight, fruitX, fruitY, score, tailSize, tailX, tailY);
+		std::cout << "Game Over" << '\n' << "Score : " << score << std::endl;
+
+		tailX.clear();
+		tailY.clear();
+		tailSize = 0;
+		score = 0;
+		validInput = false;
+		dir = nothing;
+
+		while (!validInput) {
+			std::cout << "Retry ? <Y/N>" << std::endl;
+			yesOrNo = getchar();
+			switch (yesOrNo) {
+			case 'Y':
+			case 'y':
+				validInput = true;
+				gameOver = false;
+				break;
+			case 'N':
+			case 'n':
+				validInput = true;
+				endGame = true;
+			default:
+				std::cout << "Type Y to retry or N to quit" << std::endl;
+				system("pause");
+				system("cls");
+			}
+
+		}
+
 	}
-	std::cout << "Game Over" << '\n' << "Score : " << score << std::endl;
-	system("pause");
+
+
+
+
 	return 0;
 }
 
